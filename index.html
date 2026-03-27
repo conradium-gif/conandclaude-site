@@ -236,10 +236,11 @@
     position: absolute;
     inset: 0;
     background: linear-gradient(90deg,
-      rgba(2,11,24,0.97) 0%,
-      rgba(2,15,28,0.93) 85%,
+      rgba(1,6,14,0.99) 0%,
+      rgba(2,11,24,0.99) 70%,
+      rgba(2,11,24,0.85) 90%,
       rgba(2,11,24,0) 100%);
-    border-right: 1px solid rgba(0,212,255,0.08);
+    border-right: 1px solid rgba(0,212,255,0.12);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -423,6 +424,7 @@
   <!-- Transmission Panel -->
   <div id="tx-wisp">
     <div id="tx-wisp-line"></div>
+    <canvas id="tx-orb" width="28" style="position:absolute;top:0;left:0;height:100%;pointer-events:none;"></canvas>
   </div>
   <div id="tx-panel">
     <div id="tx-panel-inner">
@@ -1389,6 +1391,38 @@ document.getElementById('modal').addEventListener('click', e => {
 
   // expose for refresh button
   window.fetchNews = fetchNews;
+
+  // ── Orbiting handle orb on the wisp
+  (function orbLoop() {
+    const orbCanvas = document.getElementById('tx-orb');
+    if (!orbCanvas) return;
+    orbCanvas.height = window.innerHeight;
+    const oc = orbCanvas.getContext('2d');
+    let t = 0;
+    function drawOrb() {
+      orbCanvas.height = window.innerHeight;
+      oc.clearRect(0, 0, 28, window.innerHeight);
+      if (panelOpen) { requestAnimationFrame(drawOrb); t++; return; }
+      const cy = window.innerHeight / 2;
+      // slow elliptical orbit around wisp midpoint
+      const ox = 6 + Math.cos(t * 0.008) * 8;
+      const oy = cy + Math.sin(t * 0.008) * 38;
+      // outer glow
+      const g = oc.createRadialGradient(ox, oy, 0, ox, oy, 12);
+      g.addColorStop(0, 'rgba(0,212,255,0.55)');
+      g.addColorStop(0.4, 'rgba(0,212,255,0.18)');
+      g.addColorStop(1, 'rgba(0,212,255,0)');
+      oc.fillStyle = g;
+      oc.beginPath(); oc.arc(ox, oy, 12, 0, Math.PI * 2); oc.fill();
+      // core dot
+      oc.fillStyle = 'rgba(180,240,255,0.9)';
+      oc.beginPath(); oc.arc(ox, oy, 2, 0, Math.PI * 2); oc.fill();
+      t++;
+      requestAnimationFrame(drawOrb);
+    }
+    drawOrb();
+    window.addEventListener('resize', () => { orbCanvas.height = window.innerHeight; });
+  })();
 
   // ── Boot
   fetchNews();
