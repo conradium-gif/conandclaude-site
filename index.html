@@ -195,47 +195,124 @@
     color: var(--muted); max-width: 160px;
   }
 
-  /* Signal */
-  .signal-section-label {
-    font-size: 8px; letter-spacing: 0.22em;
-    text-transform: uppercase; color: var(--cyan);
-    opacity: 0.4; margin-bottom: 6px;
+  /* Transmission Panel */
+  #tx-wisp {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    z-index: 50;
+    cursor: ew-resize;
+    pointer-events: all;
   }
-  .signal-date {
-    font-size: 8px; letter-spacing: 0.15em;
-    text-transform: uppercase; color: var(--cyan);
-    opacity: 0.4; margin-bottom: 4px;
+  #tx-wisp-line {
+    position: absolute;
+    left: 1px; top: 15%; bottom: 15%;
+    width: 1.5px;
+    background: linear-gradient(180deg,
+      transparent 0%,
+      rgba(0,212,255,0.15) 20%,
+      rgba(0,212,255,0.55) 50%,
+      rgba(0,212,255,0.15) 80%,
+      transparent 100%);
+    border-radius: 1px;
+    animation: wispBreathe 4s ease-in-out infinite;
   }
-  .signal-headline {
+  @keyframes wispBreathe {
+    0%,100% { opacity: 0.12; filter: blur(0.5px); }
+    50%      { opacity: 0.55; filter: blur(0px); }
+  }
+  #tx-panel {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 280px;
+    z-index: 49;
+    pointer-events: none;
+    transform: translateX(-280px);
+    will-change: transform;
+  }
+  #tx-panel-inner {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg,
+      rgba(2,11,24,0.97) 0%,
+      rgba(2,15,28,0.93) 85%,
+      rgba(2,11,24,0) 100%);
+    border-right: 1px solid rgba(0,212,255,0.08);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 32px 0 24px;
+    overflow: hidden;
+  }
+  /* aperture clip — expands vertically from center */
+  #tx-panel-inner { clip-path: inset(50% 0 50% 0); }
+  #tx-panel-inner.aperture-open { clip-path: inset(0% 0 0% 0); transition: clip-path 0.6s cubic-bezier(0.4,0,0.2,1); }
+  #tx-panel-inner.aperture-close { clip-path: inset(50% 0 50% 0); transition: clip-path 0.5s cubic-bezier(0.4,0,0.2,1); }
+
+  .tx-label {
+    font-size: 7px; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--cyan);
+    opacity: 0; margin-bottom: 20px;
+    transition: opacity 0.4s;
+  }
+  .tx-label.visible { opacity: 0.4; }
+
+  .tx-date {
+    font-size: 8px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--cyan);
+    opacity: 0; margin-bottom: 10px;
+    transition: opacity 0.4s 0.2s;
+  }
+  .tx-date.visible { opacity: 0.35; }
+
+  .tx-headline {
     font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(13px,1.8vw,18px);
-    font-weight: 300; color: var(--gold);
-    line-height: 1.2; margin-bottom: 6px;
-    max-width: 200px; transition: color 0.25s;
+    font-size: 22px; font-weight: 300;
+    color: var(--gold); line-height: 1.25;
+    margin-bottom: 14px; max-width: 220px;
+    opacity: 0; transition: opacity 0.4s 0.4s;
   }
-  .signal-body {
-    font-size: 9px; line-height: 1.7;
-    color: var(--muted); max-width: 200px;
+  .tx-headline.visible { opacity: 1; }
+
+  .tx-body {
+    font-size: 9px; line-height: 1.75;
+    color: var(--muted); max-width: 220px;
+    opacity: 0; transition: opacity 0.4s 0.6s;
   }
-  .signal-refresh {
-    font-size: 8px; letter-spacing: 0.12em;
+  .tx-body.visible { opacity: 1; }
+
+  .tx-rule {
+    width: 30px; height: 1px;
+    background: linear-gradient(90deg, var(--cyan), transparent);
+    margin-bottom: 20px;
+    opacity: 0; transition: opacity 0.4s 0.1s;
+  }
+  .tx-rule.visible { opacity: 0.3; }
+
+  .tx-refresh {
+    font-size: 7px; letter-spacing: 0.18em;
     text-transform: uppercase; color: var(--cyan);
-    opacity: 0.35; background: none; border: none;
-    cursor: pointer; margin-top: 8px; display: block;
+    opacity: 0; background: none; border: none;
+    cursor: pointer; margin-top: 18px;
     font-family: 'Space Mono', monospace;
-    pointer-events: all; transition: opacity 0.2s;
+    pointer-events: all; transition: opacity 0.4s 0.8s, color 0.2s;
+    text-align: left;
   }
-  .signal-refresh:hover { opacity: 0.9; }
+  .tx-refresh.visible { opacity: 0.3; }
+  .tx-refresh:hover { opacity: 0.9 !important; color: var(--white); }
+
   .pulse-dot {
-    width: 5px; height: 5px; border-radius: 50%;
+    width: 4px; height: 4px; border-radius: 50%;
     background: var(--cyan); display: inline-block;
     margin-right: 6px;
     animation: blink 1.4s ease-in-out infinite;
   }
-  .signal-loading {
+  .tx-loading {
     font-size: 9px; color: var(--muted);
     display: flex; align-items: center;
+    opacity: 0; transition: opacity 0.4s 0.3s;
   }
+  .tx-loading.visible { opacity: 0.6; }
 
   /* Modal */
   #modal {
@@ -341,18 +418,20 @@
     <div class="orbital-desc">Children's show. Stop-motion. 12 characters.</div>
   </div>
 
-  <!-- Signal body -->
-  <div class="orbital" id="orb-signal">
-    <div class="signal-section-label">— Signal from Anthropic</div>
-    <div id="sig-loading" class="signal-loading">
-      <span class="pulse-dot"></span>querying...
+  <!-- Transmission Panel -->
+  <div id="tx-wisp">
+    <div id="tx-wisp-line"></div>
+  </div>
+  <div id="tx-panel">
+    <div id="tx-panel-inner">
+      <div class="tx-label" id="tx-label">— Signal from Anthropic</div>
+      <div class="tx-rule" id="tx-rule"></div>
+      <div class="tx-loading" id="tx-loading"><span class="pulse-dot"></span>receiving...</div>
+      <div class="tx-date" id="tx-date"></div>
+      <div class="tx-headline" id="tx-headline"></div>
+      <div class="tx-body" id="tx-body"></div>
+      <button class="tx-refresh" id="tx-refresh" onclick="fetchNews()">↻ refresh signal</button>
     </div>
-    <div id="sig-content" style="display:none">
-      <div class="signal-date" id="sig-date"></div>
-      <div class="signal-headline" id="sig-headline"></div>
-      <div class="signal-body" id="sig-body"></div>
-    </div>
-    <button class="signal-refresh" onclick="fetchNews()">↻ refresh signal</button>
   </div>
 
   <!-- Modal -->
@@ -923,11 +1002,11 @@ const letterOsc = Array.from({length:10},(_,i)=>({
 // Each body: id, x, y, vx, vy, radius (collision), wobble oscillators
 const BODY_IDS = [
   'orb-invoicing','orb-may9th','orb-reconquest',
-  'orb-jaja','orb-trellis','orb-woolly','orb-signal'
+  'orb-jaja','orb-trellis','orb-woolly'
 ];
 
 // Collision radius for each (roughly matches visual footprint)
-const RADII = [90, 80, 105, 70, 90, 95, 110];
+const RADII = [90, 80, 105, 70, 90, 95];
 
 // Max speed cap — keeps everything dreamy-slow
 const MAX_SPEED = 0.55;
@@ -1131,41 +1210,183 @@ document.getElementById('modal').addEventListener('click', e => {
 });
 </script>
 
-<!-- News feed -->
+<!-- Transmission Panel -->
 <script>
-window.addEventListener('load', fetchNews);
-async function fetchNews() {
-  document.getElementById('sig-loading').style.display = 'flex';
-  document.getElementById('sig-content').style.display = 'none';
-  try {
-    const res = await fetch('/api/signal', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514', max_tokens: 300,
-        messages: [{role: 'user', content: `What is the most recent notable news about Anthropic or Claude AI? Reply ONLY with a JSON object: {"headline":"8-12 word headline","date":"e.g. March 2026","body":"2 sentence summary ~40 words"}. Pure JSON, no markdown, no preamble.`}]
-      })
-    });
-    const data = await res.json();
-    let raw = '';
-    if(data.content) for(const b of data.content) if(b.type==='text') raw+=b.text;
-    raw = raw.replace(/```json|```/g,'').trim();
-    const s=raw.indexOf('{'),e=raw.lastIndexOf('}');
-    if(s===-1||e===-1) throw new Error();
-    const p = JSON.parse(raw.slice(s,e+1));
-    document.getElementById('sig-date').textContent     = p.date    || '';
-    document.getElementById('sig-headline').textContent = p.headline || 'Latest from Anthropic';
-    document.getElementById('sig-body').textContent     = p.body     || '';
-    document.getElementById('sig-loading').style.display = 'none';
-    document.getElementById('sig-content').style.display = 'block';
-  } catch(err) {
-    console.error('Signal fetch error:', err);
-    document.getElementById('sig-loading').style.display = 'none';
-    document.getElementById('sig-headline').textContent = 'Signal interrupted';
-    document.getElementById('sig-body').textContent = 'Could not reach Anthropic. Refresh to retry.';
-    document.getElementById('sig-content').style.display = 'block';
+(function() {
+  const PANEL_W = 280;
+  const SHOW_DELAY = 8000;   // ms after load before panel opens
+  const READ_TIME  = 14000;  // ms panel stays open
+  const WISP_DIM   = 0.12;   // wisp opacity at its dimmest
+  const WISP_BRIGHT= 0.55;   // wisp opacity at its brightest (set via CSS anim)
+
+  let panelOpen = false;
+  let dragging = false;
+  let dragStartX = 0;
+  let panelX = -PANEL_W;
+  let autoCloseTimer = null;
+  let signalLoaded = false;
+  let signalData = null;
+
+  const panel   = document.getElementById('tx-panel');
+  const inner   = document.getElementById('tx-panel-inner');
+  const wisp    = document.getElementById('tx-wisp');
+  const wispLine= document.getElementById('tx-wisp-line');
+
+  // ── Aperture open: expand clip-path from center, then fade content in
+  function openPanel() {
+    if(panelOpen) return;
+    panelOpen = true;
+    panel.style.transform = 'translateX(0)';
+    panel.style.transition = 'transform 0.55s cubic-bezier(0.4,0,0.2,1)';
+    panel.style.pointerEvents = 'all';
+    // slight delay so panel slides in first, then aperture opens
+    setTimeout(() => {
+      inner.classList.remove('aperture-close');
+      inner.classList.add('aperture-open');
+      // fade in content elements after aperture is open
+      setTimeout(() => showContent(), 500);
+    }, 120);
+    // dim wisp while panel is open
+    wispLine.style.opacity = '0.08';
+    wispLine.style.animation = 'none';
   }
-}
+
+  function closePanel() {
+    if(!panelOpen) return;
+    panelOpen = false;
+    // hide content first
+    hideContent();
+    setTimeout(() => {
+      inner.classList.remove('aperture-open');
+      inner.classList.add('aperture-close');
+      setTimeout(() => {
+        panel.style.transform = 'translateX(-' + PANEL_W + 'px)';
+        panel.style.transition = 'transform 0.5s cubic-bezier(0.4,0,0.2,1)';
+        panel.style.pointerEvents = 'none';
+        panelX = -PANEL_W;
+        // restore wisp breathing
+        wispLine.style.opacity = '';
+        wispLine.style.animation = 'wispBreathe 4s ease-in-out infinite';
+      }, 500);
+    }, 100);
+  }
+
+  function showContent() {
+    const els = ['tx-label','tx-rule','tx-date','tx-headline','tx-body','tx-refresh'];
+    if(signalLoaded) {
+      document.getElementById('tx-loading').classList.remove('visible');
+      els.forEach(id => document.getElementById(id).classList.add('visible'));
+    } else {
+      document.getElementById('tx-loading').classList.add('visible');
+      document.getElementById('tx-label').classList.add('visible');
+    }
+  }
+
+  function hideContent() {
+    ['tx-label','tx-rule','tx-date','tx-headline','tx-body','tx-refresh','tx-loading']
+      .forEach(id => document.getElementById(id).classList.remove('visible'));
+  }
+
+  function populatePanel(data) {
+    document.getElementById('tx-date').textContent     = data.date     || '';
+    document.getElementById('tx-headline').textContent = data.headline || 'Signal from Anthropic';
+    document.getElementById('tx-body').textContent     = data.body     || '';
+    document.getElementById('tx-loading').classList.remove('visible');
+    ['tx-label','tx-rule','tx-date','tx-headline','tx-body','tx-refresh']
+      .forEach(id => document.getElementById(id).classList.add('visible'));
+  }
+
+  // ── Auto cycle: open after delay, close after read time
+  function scheduleOpen() {
+    setTimeout(() => {
+      openPanel();
+      autoCloseTimer = setTimeout(closePanel, READ_TIME);
+    }, SHOW_DELAY);
+  }
+
+  // ── Drag to reveal
+  wisp.addEventListener('mousedown', startDrag);
+  wisp.addEventListener('touchstart', e => startDrag(e.touches[0]), {passive:true});
+
+  function startDrag(e) {
+    dragging = true;
+    dragStartX = e.clientX;
+    if(autoCloseTimer) { clearTimeout(autoCloseTimer); autoCloseTimer = null; }
+    panel.style.transition = 'none';
+    inner.classList.remove('aperture-close');
+    inner.classList.add('aperture-open');
+    panel.style.pointerEvents = 'all';
+    wispLine.style.animation = 'none';
+    document.addEventListener('mousemove', onDrag);
+    document.addEventListener('touchmove', e => onDrag(e.touches[0]), {passive:true});
+    document.addEventListener('mouseup', endDrag);
+    document.addEventListener('touchend', endDrag);
+  }
+
+  function onDrag(e) {
+    if(!dragging) return;
+    const delta = e.clientX - dragStartX;
+    panelX = Math.min(0, Math.max(-PANEL_W, -PANEL_W + delta));
+    panel.style.transform = 'translateX(' + panelX + 'px)';
+    // show content once panel is more than halfway revealed
+    if(panelX > -PANEL_W * 0.5 && signalLoaded) showContent();
+  }
+
+  function endDrag() {
+    dragging = false;
+    document.removeEventListener('mousemove', onDrag);
+    document.removeEventListener('mouseup', endDrag);
+    document.removeEventListener('touchend', endDrag);
+    // snap: if more than 40% revealed, snap open; otherwise snap closed
+    if(panelX > -PANEL_W * 0.6) {
+      panelOpen = false; // allow openPanel to run
+      openPanel();
+      autoCloseTimer = setTimeout(closePanel, READ_TIME);
+    } else {
+      panelOpen = true; // allow closePanel to run
+      closePanel();
+    }
+  }
+
+  // ── Fetch signal
+  async function fetchNews() {
+    signalLoaded = false;
+    document.getElementById('tx-loading').classList.add('visible');
+    ['tx-date','tx-headline','tx-body','tx-refresh','tx-rule']
+      .forEach(id => document.getElementById(id).classList.remove('visible'));
+    try {
+      const res = await fetch('/api/signal', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514', max_tokens: 300,
+          messages: [{ role: 'user', content: `What is the most recent notable news about Anthropic or Claude AI? Reply ONLY with a JSON object: {"headline":"8-12 word headline","date":"e.g. March 2026","body":"2 sentence summary ~40 words"}. Pure JSON, no markdown, no preamble.` }]
+        })
+      });
+      const data = await res.json();
+      let raw = '';
+      if(data.content) for(const b of data.content) if(b.type==='text') raw += b.text;
+      raw = raw.replace(/```json|```/g,'').trim();
+      const s = raw.indexOf('{'), e = raw.lastIndexOf('}');
+      if(s === -1 || e === -1) throw new Error('bad json');
+      signalData = JSON.parse(raw.slice(s, e+1));
+      signalLoaded = true;
+      if(panelOpen) populatePanel(signalData);
+    } catch(err) {
+      console.error('Signal error:', err);
+      signalData = { date: '', headline: 'Signal interrupted', body: 'Could not reach Anthropic. Refresh to retry.' };
+      signalLoaded = true;
+      if(panelOpen) populatePanel(signalData);
+    }
+  }
+
+  // expose for refresh button
+  window.fetchNews = fetchNews;
+
+  // ── Boot
+  fetchNews();
+  scheduleOpen();
+})();
 </script>
 </body>
 </html>
