@@ -206,21 +206,22 @@
   }
   #tx-wisp-line {
     position: absolute;
-    left: 1px; top: 15%; bottom: 15%;
-    width: 2px;
+    left: 2px; top: 12%; bottom: 12%;
+    width: 3px;
     background: linear-gradient(180deg,
       transparent 0%,
-      rgba(0,212,255,0.2) 20%,
-      rgba(0,212,255,0.7) 50%,
-      rgba(0,212,255,0.2) 80%,
+      rgba(0,212,255,0.35) 20%,
+      rgba(0,212,255,0.95) 50%,
+      rgba(0,212,255,0.35) 80%,
       transparent 100%);
-    border-radius: 1px;
-    animation: wispBreathe 4s ease-in-out infinite;
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(0,212,255,0.6), 0 0 16px rgba(0,212,255,0.2);
+    animation: wispBreathe 3.5s ease-in-out infinite;
     pointer-events: none;
   }
   @keyframes wispBreathe {
-    0%,100% { opacity: 0.15; filter: blur(0.5px); }
-    50%      { opacity: 0.7;  filter: blur(0px); }
+    0%,100% { opacity: 0.25; filter: blur(0.5px); }
+    50%      { opacity: 1.0;  filter: blur(0px); }
   }
   #tx-panel {
     position: fixed;
@@ -1215,7 +1216,7 @@ document.getElementById('modal').addEventListener('click', e => {
 <script>
 (function() {
   const PANEL_W = 280;
-  const SHOW_DELAY = 8000;   // ms after load before panel opens
+  const SHOW_DELAY = 12000;  // ms after load before panel opens (gives API time to respond)
   const READ_TIME  = 14000;  // ms panel stays open
   const WISP_DIM   = 0.12;   // wisp opacity at its dimmest
   const WISP_BRIGHT= 0.55;   // wisp opacity at its brightest (set via CSS anim)
@@ -1376,6 +1377,7 @@ document.getElementById('modal').addEventListener('click', e => {
       if(s === -1 || e === -1) throw new Error('bad json');
       signalData = JSON.parse(raw.slice(s, e+1));
       signalLoaded = true;
+      // auto-populate whether panel is open or not — ready for next open
       if(panelOpen) populatePanel(signalData);
     } catch(err) {
       console.error('Signal error:', err);
