@@ -235,12 +235,8 @@
   #tx-panel-inner {
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg,
-      rgba(1,6,14,0.99) 0%,
-      rgba(2,11,24,0.99) 70%,
-      rgba(2,11,24,0.85) 90%,
-      rgba(2,11,24,0) 100%);
-    border-right: 1px solid rgba(0,212,255,0.12);
+    background: none;
+    border-right: none;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -274,6 +270,7 @@
     color: var(--gold); line-height: 1.25;
     margin-bottom: 14px; max-width: 220px;
     opacity: 0; transition: opacity 0.4s 0.4s;
+    text-shadow: 0 0 28px rgba(2,11,24,0.95), 0 1px 8px rgba(2,11,24,0.9);
   }
   .tx-headline.visible { opacity: 1; }
 
@@ -281,6 +278,7 @@
     font-size: 9px; line-height: 1.75;
     color: var(--muted); max-width: 220px;
     opacity: 0; transition: opacity 0.4s 0.6s;
+    text-shadow: 0 0 20px rgba(2,11,24,0.99), 0 1px 6px rgba(2,11,24,0.95);
   }
   .tx-body.visible { opacity: 1; }
 
@@ -1392,35 +1390,73 @@ document.getElementById('modal').addEventListener('click', e => {
   // expose for refresh button
   window.fetchNews = fetchNews;
 
-  // ── Orbiting handle orb on the wisp
+  // ── Orbiting handle orb — wider orbit, clickable
   (function orbLoop() {
     const orbCanvas = document.getElementById('tx-orb');
     if (!orbCanvas) return;
+
+    // Widen the canvas so orb can travel further from edge
+    const ORB_REACH = 72; // how far right the orb travels
+    orbCanvas.width = ORB_REACH;
+    orbCanvas.style.width = ORB_REACH + 'px';
     orbCanvas.height = window.innerHeight;
     const oc = orbCanvas.getContext('2d');
     let t = 0;
+    let orbX = 0, orbY = 0; // track for click detection
+
     function drawOrb() {
       orbCanvas.height = window.innerHeight;
-      oc.clearRect(0, 0, 28, window.innerHeight);
+      oc.clearRect(0, 0, ORB_REACH, window.innerHeight);
       if (panelOpen) { requestAnimationFrame(drawOrb); t++; return; }
+
       const cy = window.innerHeight / 2;
-      // slow elliptical orbit around wisp midpoint
-      const ox = 6 + Math.cos(t * 0.008) * 8;
-      const oy = cy + Math.sin(t * 0.008) * 38;
+      // elliptical orbit: x travels 4px–68px from left edge, y swings ±55px
+      orbX = 4 + ((Math.cos(t * 0.007) + 1) / 2) * (ORB_REACH - 8);
+      orbY = cy + Math.sin(t * 0.007) * 55;
+
+      // trail — faint line back to wisp
+      oc.beginPath();
+      oc.moveTo(2, orbY);
+      oc.lineTo(orbX, orbY);
+      oc.strokeStyle = 'rgba(0,212,255,0.06)';
+      oc.lineWidth = 1;
+      oc.stroke();
+
       // outer glow
-      const g = oc.createRadialGradient(ox, oy, 0, ox, oy, 12);
-      g.addColorStop(0, 'rgba(0,212,255,0.55)');
-      g.addColorStop(0.4, 'rgba(0,212,255,0.18)');
+      const g = oc.createRadialGradient(orbX, orbY, 0, orbX, orbY, 14);
+      g.addColorStop(0, 'rgba(0,212,255,0.6)');
+      g.addColorStop(0.35, 'rgba(0,212,255,0.2)');
       g.addColorStop(1, 'rgba(0,212,255,0)');
       oc.fillStyle = g;
-      oc.beginPath(); oc.arc(ox, oy, 12, 0, Math.PI * 2); oc.fill();
+      oc.beginPath(); oc.arc(orbX, orbY, 14, 0, Math.PI * 2); oc.fill();
+
       // core dot
-      oc.fillStyle = 'rgba(180,240,255,0.9)';
-      oc.beginPath(); oc.arc(ox, oy, 2, 0, Math.PI * 2); oc.fill();
+      oc.fillStyle = 'rgba(200,245,255,0.95)';
+      oc.beginPath(); oc.arc(orbX, orbY, 2.5, 0, Math.PI * 2); oc.fill();
+
       t++;
       requestAnimationFrame(drawOrb);
     }
     drawOrb();
+
+    // Click the orb to open panel
+    orbCanvas.style.pointerEvents = 'all';
+    orbCanvas.style.cursor = 'pointer';
+    orbCanvas.addEventListener('click', e => {
+      const rect = orbCanvas.getBoundingClientRect();
+      const cx = e.clientX - rect.left;
+      const cy2 = e.clientY - rect.top;
+      const dist = Math.sqrt((cx - orbX) ** 2 + (cy2 - orbY) ** 2);
+      if (dist < 22) { // generous hit radius
+        if (autoCloseTimer) { clearTimeout(autoCloseTimer); autoCloseTimer = null; }
+        openPanel();
+        autoCloseTimer = setTimeout(() => {
+          closePanel();
+          scheduleOpen(REPEAT_INTERVAL);
+        }, READ_TIME);
+      }
+    });
+
     window.addEventListener('resize', () => { orbCanvas.height = window.innerHeight; });
   })();
 
