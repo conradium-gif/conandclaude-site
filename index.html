@@ -1142,9 +1142,8 @@ async function fetchNews() {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-20250514', max_tokens:1000,
-        tools:[{type:'web_search_20250305',name:'web_search'}],
-        messages:[{role:'user',content:`Search for the latest Anthropic news about Claude updates, model releases, or company announcements. Return ONLY a JSON object: {"headline":"8-12 word headline","date":"e.g. March 2026","body":"2 sentence summary ~50 words"}. Pure JSON, no markdown.`}]
+        model: 'claude-sonnet-4-20250514', max_tokens: 300,
+        messages: [{role: 'user', content: `What is the most recent notable news about Anthropic or Claude AI? Reply ONLY with a JSON object: {"headline":"8-12 word headline","date":"e.g. March 2026","body":"2 sentence summary ~40 words"}. Pure JSON, no markdown, no preamble.`}]
       })
     });
     const data = await res.json();
