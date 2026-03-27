@@ -199,7 +199,7 @@
   #tx-wisp {
     position: fixed;
     left: 0; top: 0; bottom: 0;
-    width: 3px;
+    width: 28px;  /* wide invisible hit area */
     z-index: 50;
     cursor: ew-resize;
     pointer-events: all;
@@ -207,19 +207,20 @@
   #tx-wisp-line {
     position: absolute;
     left: 1px; top: 15%; bottom: 15%;
-    width: 1.5px;
+    width: 2px;
     background: linear-gradient(180deg,
       transparent 0%,
-      rgba(0,212,255,0.15) 20%,
-      rgba(0,212,255,0.55) 50%,
-      rgba(0,212,255,0.15) 80%,
+      rgba(0,212,255,0.2) 20%,
+      rgba(0,212,255,0.7) 50%,
+      rgba(0,212,255,0.2) 80%,
       transparent 100%);
     border-radius: 1px;
     animation: wispBreathe 4s ease-in-out infinite;
+    pointer-events: none;
   }
   @keyframes wispBreathe {
-    0%,100% { opacity: 0.12; filter: blur(0.5px); }
-    50%      { opacity: 0.55; filter: blur(0px); }
+    0%,100% { opacity: 0.15; filter: blur(0.5px); }
+    50%      { opacity: 0.7;  filter: blur(0px); }
   }
   #tx-panel {
     position: fixed;
@@ -1296,12 +1297,16 @@ document.getElementById('modal').addEventListener('click', e => {
       .forEach(id => document.getElementById(id).classList.add('visible'));
   }
 
-  // ── Auto cycle: open after delay, close after read time
-  function scheduleOpen() {
+  // ── Auto cycle: open after delay, close after read time, then repeat
+  const REPEAT_INTERVAL = 45000; // ms between auto-cycles after first
+  function scheduleOpen(delay) {
     setTimeout(() => {
       openPanel();
-      autoCloseTimer = setTimeout(closePanel, READ_TIME);
-    }, SHOW_DELAY);
+      autoCloseTimer = setTimeout(() => {
+        closePanel();
+        scheduleOpen(REPEAT_INTERVAL); // reschedule after closing
+      }, READ_TIME);
+    }, delay);
   }
 
   // ── Drag to reveal
@@ -1385,7 +1390,7 @@ document.getElementById('modal').addEventListener('click', e => {
 
   // ── Boot
   fetchNews();
-  scheduleOpen();
+  scheduleOpen(SHOW_DELAY);
 })();
 </script>
 </body>
