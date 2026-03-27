@@ -1160,6 +1160,13 @@ async function fetchNews() {
     document.getElementById('sig-loading').style.display = 'none';
     document.getElementById('sig-content').style.display = 'block';
   } catch(err) {
+    console.error('Signal fetch error:', err);
+    document.getElementById('sig-loading').style.display = 'none';
     document.getElementById('sig-headline').textContent = 'Signal interrupted';
-    document.getElementById('sig-body').textContent     = 'Could not reach Anthropic. Refresh to retry.';
-    document.getElementById('si
+    document.getElementById('sig-body').textContent = 'Could not reach Anthropic. Refresh to retry.';
+    document.getElementById('sig-content').style.display = 'block';
+  }
+}
+</script>
+</body>
+</html>
